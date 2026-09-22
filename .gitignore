@@ -1,0 +1,16 @@
+# Local single-file preview written by src/build.py (not deployed)
+/preview.html
+
+# Vercel CLI
+.vercel/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
