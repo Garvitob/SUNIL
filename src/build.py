@@ -38,6 +38,7 @@ DEV_WA_NUMBER = "917017304973"   # First Compile (website developer), footer cre
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "src" / "template.html"
 SRC_404 = ROOT / "src" / "404.html"
+PAGES_DIR = ROOT / "src" / "pages"
 SITE = ROOT / "site"
 MIME = {".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
 
@@ -180,7 +181,105 @@ def check_markers(s, where):
         sys.exit("Unprocessed markers in %s: %s" % (where, sorted(set(left))))
 
 
-def render(tpl, lang, mode, site_url, lastmod):
+def load_pages():
+    """Each src/pages/*.html is one page: an <!--page ... --> header (slug, type, title, description,
+    og_title, og_desc, crumb) followed by its <main>. It is served at /<slug> (Hindi) and /en/<slug>."""
+    pages = []
+    for path in sorted(PAGES_DIR.glob("*.html"), key=lambda p: p.name):
+        where = path.relative_to(ROOT).as_posix()
+        text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
+        m = re.match(r"<!--page[ \t]*\n(.*?)\n[ \t]*-->[ \t]*\n", text, re.S)
+        if not m:
+            sys.exit("%s: missing the <!--page ... --> header" % where)
+        meta = {k: v.strip() for k, v in re.findall(r"^(\w+):[ \t]*(.*)$", m.group(1), re.M)}
+        for key in ("type", "title", "description", "crumb"):
+            if not meta.get(key):
+                sys.exit("%s: the page header needs '%s:'" % (where, key))
+        meta["og_title"] = meta.get("og_title") or meta["title"]
+        meta["og_desc"] = meta.get("og_desc") or meta["description"]
+        for key in ("title", "description", "og_title", "og_desc", "crumb"):  # these go into content="..." attributes
+            if not re.fullmatch(r'⟮[^‖⟮⟯⟦⟧⟪⟫"<>]+‖[^‖⟮⟯⟦⟧⟪⟫"<>]+⟯', meta[key]):
+                sys.exit('%s: %s must be one line written as ⟮हिंदी‖English⟯, without " < >' % (where, key))
+        if "slug" not in meta:
+            sys.exit("%s: the page header needs 'slug:' (left empty only on the home page)" % where)
+        slug = meta["slug"].strip("/")
+        if slug and (not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*", slug)
+                     or slug.split("/")[0] in ("en", "images", "fonts")):
+            sys.exit("%s: slug '%s' must be lowercase-words-with-hyphens and not start with en/, images/ or fonts/" % (where, slug))
+        meta["slug"] = slug + "/" if slug else ""
+        meta["file"] = where
+        meta["body"] = text[m.end():]
+        pages.append(meta)
+    slugs = [p["slug"] for p in pages]
+    dup = sorted({s or "(home)" for s in slugs if slugs.count(s) > 1})
+    if dup:
+        sys.exit("src/pages: more than one page uses the slug %s" % ", ".join(dup))
+    pages.sort(key=lambda p: p["slug"] != "")
+    if not pages or pages[0]["slug"] != "":
+        sys.exit("src/pages needs a home page with an empty slug")
+    return pages
+
+
+def page_ld(page):
+    """The page's own node(s) in the JSON-LD @graph (marker strings are resolved per language later)."""
+    node = {"@type": page["type"], "@id": "{{PAGE_URL}}#webpage", "url": "{{PAGE_URL}}", "name": page["title"],
+            "description": page["description"], "inLanguage": "⟮hi-IN‖en-IN⟯", "isPartOf": {"@id": "{{SITE}}/#website"},
+            "about": {"@id": "{{SITE}}/#person"}}
+    if page["type"] == "ProfilePage":
+        node["mainEntity"] = {"@id": "{{SITE}}/#person"}
+    node["primaryImageOfPage"] = {"@id": "{{SITE}}/#portrait"}
+    node["dateModified"] = "{{LASTMOD}}"
+    nodes = [node]
+    if page["slug"]:
+        node["breadcrumb"] = {"@id": "{{PAGE_URL}}#breadcrumb"}
+        nodes.append({"@type": "BreadcrumbList", "@id": "{{PAGE_URL}}#breadcrumb", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "⟮सुनील चरौरा‖Sunil Charora⟯", "item": "{{HOME_URL}}"},
+            {"@type": "ListItem", "position": 2, "name": page["crumb"], "item": "{{PAGE_URL}}"}]})
+    dump = lambda n: "\n".join("    " + line for line in json.dumps(n, ensure_ascii=False, indent=2).split("\n"))
+    return ",\n".join(dump(n) for n in nodes)
+
+
+def compose(shell, page, pages):
+    """Shared shell + one page: head values, <main>, and links that work from any page in either language.
+    {{LINK:slug/#anchor}} in a page links to another page (and swaps with the language switch);
+    {{HOME_LINK:anchor}} in the shell is an in-page anchor on the home page and a link to it elsewhere."""
+    slugs = {p["slug"] for p in pages}
+    page.setdefault("targets", set())  # (slug, anchor) pairs, checked against the rendered pages in main()
+
+    def link(target):
+        slug, _, anchor = target.partition("#")
+        if slug not in slugs:
+            sys.exit("%s: link to unknown page '%s'" % (page["file"], target))
+        if anchor:
+            page["targets"].add((slug, anchor))
+        return "⟪/%s‖/en/%s⟫" % (target, target)
+
+    def home_link(m):
+        if not page["slug"]:
+            page["targets"].add(("", m.group(1)))
+            return "#" + m.group(1)
+        return link("" if m.group(1) == "top" else "#" + m.group(1))
+
+    s = shell.replace("{{MAIN}}\n", page["body"])
+    s = re.sub(r"\{\{HOME_LINK:([\w-]+)\}\}", home_link, s)
+    s = re.sub(r"\{\{LINK:([^}]*)\}\}", lambda m: link(m.group(1)), s)
+    for k, v in {"{{P_TITLE}}": page["title"], "{{P_DESC}}": page["description"], "{{P_OG_TITLE}}": page["og_title"],
+                 "{{P_OG_DESC}}": page["og_desc"], "{{SLUG}}": page["slug"], "{{PAGE_LD}}": page_ld(page)}.items():
+        s = s.replace(k, v)
+    return s
+
+
+def resolve(text, lang):
+    """⟮hi‖en⟯ / ⟦hi‖en⟧ -> one language (for plain-text outputs such as llms.txt)."""
+    i = 0 if lang == "hi" else 1
+    return re.sub(r"[⟮⟦](.*?)‖(.*?)[⟯⟧]", lambda m: m.group(1 + i), text, flags=re.S)
+
+
+def render(shell, page, pages, lang, mode, site_url, lastmod):
+    tpl = compose(shell, page, pages)
+    nested = re.search(r"⟦[^⟧]*⟪", tpl)
+    if nested:  # the language switch swaps a ⟦⟧ span's HTML first, so a ⟪⟫ attribute inside it would swap wrongly
+        sys.exit("%s: put links/attributes with ⟪…⟫ outside ⟦…⟧ text: ...%s" % (page["file"], nested.group(0)[-80:]))
     pick = (lambda hi, en: hi) if lang == "hi" else (lambda hi, en: en)
     other = (lambda hi, en: en) if lang == "hi" else (lambda hi, en: hi)
     title = re.search(r"<title>⟮(.*?)‖(.*?)⟯</title>", tpl, re.S)
@@ -219,25 +318,30 @@ def render(tpl, lang, mode, site_url, lastmod):
     base = "/" if mode == "site" else ""
     s = re.sub(r"\{\{IMG:([^}]+)\}\}", lambda m: asset("images", m.group(1), base, mode), s)
     s = re.sub(r"\{\{ICON:([^}]+)\}\}", lambda m: icon(m.group(1), mode), s)
-    page_url = site_url + ("/" if lang == "hi" else "/en/")
-    hi_href, en_href = ("/", "/en/") if mode == "site" else ("./", "en/")
-    verify = verification_meta() if lang == "hi" else ""
+    home_url = site_url + ("/" if lang == "hi" else "/en/")
+    page_url = home_url + page["slug"]
+    hi_href, en_href = ("/" + page["slug"], "/en/" + page["slug"]) if mode == "site" else ("./", "en/")
+    verify = verification_meta() if (lang == "hi" and not page["slug"]) else ""
     s = s.replace("{{VERIFY}}\n", verify + "\n" if verify else "")
-    for k, v in {"{{SITE}}": site_url, "{{PAGE_URL}}": page_url, "{{LANG}}": lang, "{{BASE}}": base,
-                 "{{HI_HREF}}": hi_href, "{{EN_HREF}}": en_href, "{{LASTMOD}}": lastmod,
+    for k, v in {"{{SITE}}": site_url, "{{PAGE_URL}}": page_url, "{{HOME_URL}}": home_url, "{{LANG}}": lang,
+                 "{{BASE}}": base, "{{HI_HREF}}": hi_href, "{{EN_HREF}}": en_href, "{{LASTMOD}}": lastmod,
                  "{{FONT_FACES}}": font_faces(base, mode)}.items():
         s = s.replace(k, v)
 
+    where = "%s %s/%s" % (page["file"], lang, mode)
     strip = lambda h: re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", h)).strip()
     qa = re.findall(r"<details>\s*<summary>(.*?)</summary>\s*<p>(.*?)</p>\s*</details>", s, re.S)
-    faq = {"@context": "https://schema.org", "@type": "FAQPage", "@id": page_url + "#faq",
-           "inLanguage": "hi-IN" if lang == "hi" else "en-IN", "isPartOf": {"@id": site_url + "/#website"},
-           "mainEntity": [{"@type": "Question", "name": strip(q), "acceptedAnswer": {"@type": "Answer", "text": strip(a)}} for q, a in qa]}
-    s = s.replace("{{FAQ_JSONLD}}", json.dumps(faq, ensure_ascii=False, indent=2).replace("</", "<\\/"))
+    if qa:
+        faq = {"@context": "https://schema.org", "@type": "FAQPage", "@id": page_url + "#faq",
+               "inLanguage": "hi-IN" if lang == "hi" else "en-IN", "isPartOf": {"@id": page_url + "#webpage"},
+               "mainEntity": [{"@type": "Question", "name": strip(q), "acceptedAnswer": {"@type": "Answer", "text": strip(re.sub(r"\s*<a\b[^>]*>.*?</a>", "", a, flags=re.S))}} for q, a in qa]}
+        s = s.replace("{{FAQ_JSONLD}}", json.dumps(faq, ensure_ascii=False, indent=2).replace("</", "<\\/"))
+    else:
+        s = s.replace('<script type="application/ld+json">\n{{FAQ_JSONLD}}\n</script>\n', "")
     s = s.replace("{{DICT}}", json.dumps(D, ensure_ascii=False).replace("</", "<\\/"))
-    s = add_csp(s, "%s/%s" % (lang, mode)) if mode == "site" else s.replace("{{CSP}}\n", "")
-    check_jsonld(s, "%s/%s" % (lang, mode))
-    check_markers(s, "%s/%s" % (lang, mode))
+    s = add_csp(s, where) if mode == "site" else s.replace("{{CSP}}\n", "")
+    check_jsonld(s, where)
+    check_markers(s, where)
     return s
 
 
@@ -257,9 +361,10 @@ def content_date():
     lastmod that changes on every deploy). A fingerprint of every source file is kept in sitemap.xml;
     the date carries over while the fingerprint matches, and becomes today's date when it does not."""
     h = hashlib.sha256()
-    files = [SRC, SRC_404, pathlib.Path(__file__).resolve()]
-    files += sorted(p for d in ("images", "fonts") for p in (SITE / d).iterdir()
-                    if p.is_file() and p.suffix.lower() in (".webp", ".jpg", ".jpeg", ".png", ".ico", ".woff2", ".txt"))
+    by_name = lambda p: (p.parent.name, p.name)
+    files = [SRC, SRC_404, pathlib.Path(__file__).resolve()] + sorted(PAGES_DIR.glob("*.html"), key=by_name)
+    files += sorted((p for d in ("images", "fonts") for p in (SITE / d).iterdir()
+                     if p.is_file() and p.suffix.lower() in (".webp", ".jpg", ".jpeg", ".png", ".ico", ".woff2", ".txt")), key=by_name)
     for p in files:
         data = p.read_bytes()
         if p.suffix in (".html", ".py"):
@@ -273,12 +378,19 @@ def content_date():
     return fingerprint, datetime.date.today().isoformat()
 
 
-def seo_files(site_url, fingerprint, lastmod):
-    alt = ('    <xhtml:link rel="alternate" hreflang="hi" href="{u}/"/>\n'
-           '    <xhtml:link rel="alternate" hreflang="en" href="{u}/en/"/>\n'
-           '    <xhtml:link rel="alternate" hreflang="x-default" href="{u}/"/>\n').format(u=site_url)
-    imgs = "".join("    <image:image><image:loc>%s/images/%s</image:loc></image:image>\n" % (site_url, f) for f in PHOTOS)
-    urls = "".join("  <url>\n    <loc>%s</loc>\n%s    <lastmod>%s</lastmod>\n%s  </url>\n" % (site_url + p, alt, lastmod, imgs) for p in ("/", "/en/"))
+def seo_files(site_url, pages, fingerprint, lastmod):
+    urls = ""
+    for page in pages:
+        slug = page["slug"]
+        alt = ('    <xhtml:link rel="alternate" hreflang="hi" href="{u}/{s}"/>\n'
+               '    <xhtml:link rel="alternate" hreflang="en" href="{u}/en/{s}"/>\n'
+               '    <xhtml:link rel="alternate" hreflang="x-default" href="{u}/{s}"/>\n').format(u=site_url, s=slug)
+        imgs = "" if slug else "".join("    <image:image><image:loc>%s/images/%s</image:loc></image:image>\n" % (site_url, f) for f in PHOTOS)
+        for prefix in ("/", "/en/"):
+            urls += "  <url>\n    <loc>%s%s%s</loc>\n%s    <lastmod>%s</lastmod>\n%s  </url>\n" % (site_url, prefix, slug, alt, lastmod, imgs)
+    page_list = "\n".join("- [%s](%s/%s): %s\n- [%s](%s/en/%s): %s" % (
+        resolve(p["crumb"], "hi") + " (हिंदी)", site_url, p["slug"], resolve(p["description"], "en"),
+        resolve(p["crumb"], "en") + " (English)", site_url, p["slug"], resolve(p["description"], "en")) for p in pages)
     write(SITE / "sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n'
           '<!-- content %s %s -->\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"'
@@ -287,12 +399,15 @@ def seo_files(site_url, fingerprint, lastmod):
     write(SITE / "robots.txt", "User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % site_url)
     write(SITE / "llms.txt", f"""# Sunil Charora (सुनील चरौरा)
 
-> Rashtriya Lok Dal (RLD) leader from the Jahangirabad–Anupshahr area of Bulandshahr district, Uttar Pradesh, India, and a former member of the Bulandshahr Zila Panchayat (Ward No. 50). Works on farmers' issues, youth employment, students' welfare, women's safety and the development of Anupshahr Assembly constituency (No. 67).
+> Rashtriya Lok Dal (RLD) leader from the Jahangirabad–Anupshahr area of Bulandshahr district, Uttar Pradesh, India. Twice a member of the Bulandshahr Zila Panchayat (2010–2015 Ward No. 43, 2015–2020 Ward No. 50). A probable candidate (contender) for the 2027 Anupshahr Assembly (Vidhan Sabha, No. 67) election and a strong contender from Zila Panchayat Ward No. 50. Works on farmers' issues, youth employment, students' welfare, women's safety and the development of Anupshahr.
 
 Key facts:
 - Name: Sunil Charora. Hindi: सुनील चरौरा (also written सुनील चरोरा; Latin variant Sunil Charaura)
 - Party: Rashtriya Lok Dal (RLD, राष्ट्रीय लोक दल, रालोद); national president Jayant Chaudhary
-- Former post: Zila Panchayat Member, Ward No. 50, Bulandshahr
+- Zila Panchayat record: member, Bulandshahr, 2010–2015 (Ward No. 43) and 2015–2020 (Ward No. 50). In 2021 the seat was reserved for women; his wife Smt. Geeta Charora contested and won (2021–2026).
+- 2027: probable candidate / contender for Anupshahr Vidhan Sabha (No. 67), अनूपशहर विधानसभा 2027 के संभावित प्रत्याशी. Official candidates are announced by parties.
+- Zila Panchayat: strong contender from Ward No. 50 (वार्ड नं. 50) in the next Bulandshahr Zila Panchayat election
+- Known for: simple manner, direct phone/WhatsApp contact, grassroots work (जनता से जुड़े, सरल स्वभाव)
 - Area of work: Jahangirabad–Anupshahr, Bulandshahr district, Uttar Pradesh
 - Assembly constituency: Anupshahr (No. 67; officially also spelt Anoopshahr), part of the Bulandshahr Lok Sabha constituency
 - Phone / WhatsApp: +91 97191 66039
@@ -300,8 +415,7 @@ Key facts:
 - Public-service help desk: assistance with forms for PM-Kisan, Kisan Credit Card, crop insurance, Ayushman card, pensions, scholarships, skill training, housing and Ujjwala. This is a private initiative, not a government portal.
 
 ## Pages
-- [Hindi, default]({site_url}/): about, pledges, scheme help, FAQ, contact
-- [English]({site_url}/en/): the same content in English
+{page_list}
 
 ## Optional
 - Website designed and developed by First Compile (Garvit Oberoi, +91 70173 04973)
@@ -333,18 +447,35 @@ Hosting: Vercel
 def main():
     site_url, source = site_address()
     print("Site URL: %s  (from %s)" % (site_url, source))
-    tpl = SRC.read_text(encoding="utf-8")
+    shell = SRC.read_text(encoding="utf-8")
+    pages = load_pages()
     fingerprint, lastmod = content_date()
-    write(SITE / "index.html", render(tpl, "hi", "site", site_url, lastmod))
-    write(SITE / "en" / "index.html", render(tpl, "en", "site", site_url, lastmod))
-    write(SITE / "404.html", render_404(site_url))
-    seo_files(site_url, fingerprint, lastmod)
-    outputs = ["site/index.html", "site/en/index.html", "site/404.html"]
-    if not os.environ.get("VERCEL") and "--no-preview" not in sys.argv:
-        write(ROOT / "preview.html", render(tpl, "hi", "preview", site_url, lastmod))
-        outputs.append("preview.html")
-    for p in outputs:
-        print("%-20s %7.1f KB" % (p, (ROOT / p).stat().st_size / 1024))
+
+    # Render everything first, so a failing page never leaves site/ half-written.
+    built = {}
+    for page in pages:
+        for lang, prefix in (("hi", ""), ("en", "en/")):
+            built["site/%s%sindex.html" % (prefix, page["slug"])] = render(shell, page, pages, lang, "site", site_url, lastmod)
+    ids = {p["slug"]: set(re.findall(r'\sid="([^"]+)"', built["site/%sindex.html" % p["slug"]])) for p in pages}
+    for page in pages:
+        for slug, anchor in sorted(page["targets"]):
+            if anchor not in ids[slug]:
+                sys.exit("%s: link to /%s#%s, but that page has no id=\"%s\"" % (page["file"], slug, anchor, anchor))
+    built["site/404.html"] = render_404(site_url)
+    preview = not os.environ.get("VERCEL") and "--no-preview" not in sys.argv
+    if preview:
+        built["preview.html"] = render(shell, pages[0], pages, "hi", "preview", site_url, lastmod)
+
+    for out, html_text in built.items():
+        write(ROOT / out, html_text)
+    keep = {(ROOT / out).resolve() for out in built}
+    for old in sorted(SITE.rglob("index.html")):  # a renamed or removed page must not stay online
+        if old.resolve() not in keep:
+            old.unlink()
+            print("Removed stale page %s" % old.relative_to(ROOT).as_posix())
+    seo_files(site_url, pages, fingerprint, lastmod)
+    for p in built:
+        print("%-48s %7.1f KB" % (p, (ROOT / p).stat().st_size / 1024))
     print("Content date: %s" % lastmod)
 
 

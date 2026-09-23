@@ -5,6 +5,8 @@ import pathlib, os
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 os.chdir(ROOT)
 # Needs Khand-Bold.ttf, MartelSans-Regular.ttf, MartelSans-Bold.ttf (Google Fonts, OFL) in src/fonts/
+# and Pillow built with libraqm (Linux/macOS usually; check: python -c "from PIL import features; print(features.check('raqm'))").
+# Without raqm, Hindi matras are placed wrongly.
 F = "src/fonts/"
 RAQM = ImageFont.Layout.RAQM
 def font(name, size): return ImageFont.truetype(F+name, size, layout_engine=RAQM)
@@ -42,11 +44,11 @@ def og(lang, out):
     d = ImageDraw.Draw(im)
     if lang=="hi":
         top="जनसंपर्क अभियान 2027, अनूपशहर विधानसभा (67)"; name1="सुनील"; name2="चरौरा"
-        slogan="हर सुख-दुख में आपके साथ"; l1="पूर्व जिला पंचायत सदस्य (वार्ड नं. 50), बुलंदशहर"; l2="राष्ट्रीय लोक दल"
+        slogan="हर सुख-दुख में आपके साथ"; l1="दो बार जिला पंचायत सदस्य (2010–2020), बुलंदशहर"; l2="राष्ट्रीय लोक दल"
         phone="फोन / व्हाट्सएप: 97191 66039"
     else:
         top="Outreach Campaign 2027, Anupshahr Assembly (67)"; name1="Sunil"; name2="Charora"
-        slogan="With you in every joy and sorrow"; l1="Former Zila Panchayat Member (Ward 50), Bulandshahr"; l2="Rashtriya Lok Dal (RLD)"
+        slogan="With you in every joy and sorrow"; l1="Two-time Zila Panchayat Member (2010–2020), Bulandshahr"; l2="Rashtriya Lok Dal (RLD)"
         phone="Call / WhatsApp: 97191 66039"
     x=64
     d.text((x,70), top, font=font("MartelSans-Bold.ttf",26), fill=MUSTARD, anchor="la")
@@ -67,7 +69,7 @@ def og(lang, out):
     d.text((40, H-20), "जहांगीराबाद–अनूपशहर, बुलंदशहर" if lang=="hi" else "Jahangirabad–Anupshahr, Bulandshahr", font=font("MartelSans-Bold.ttf",22), fill=MUSTARD, anchor="lm")
     im.save(out, "JPEG", quality=86, optimize=True, progressive=True)
 
-og("hi","site/images/og-image.jpg"); og("en","site/images/og-image-en.jpg")
+og("hi","site/images/og-image-v2.jpg"); og("en","site/images/og-image-en-v2.jpg")
 
 # Icons: "सु" on green, ink-centred
 def icon(size, rounded=True):

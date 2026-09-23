@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- content 4c115651b97df16e 2026-09-23 -->
+<!-- content ac37f4fd5d3db50e 2026-09-24 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://sunilcharora.in/</loc>
     <xhtml:link rel="alternate" hreflang="hi" href="https://sunilcharora.in/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://sunilcharora.in/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://sunilcharora.in/"/>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
     <image:image><image:loc>https://sunilcharora.in/images/sunil-charora-portrait.webp</image:loc></image:image>
     <image:image><image:loc>https://sunilcharora.in/images/sunil-charora-sabha.webp</image:loc></image:image>
     <image:image><image:loc>https://sunilcharora.in/images/sunil-charora-naujawan-1200.webp</image:loc></image:image>
@@ -17,10 +17,24 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://sunilcharora.in/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://sunilcharora.in/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://sunilcharora.in/"/>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
     <image:image><image:loc>https://sunilcharora.in/images/sunil-charora-portrait.webp</image:loc></image:image>
     <image:image><image:loc>https://sunilcharora.in/images/sunil-charora-sabha.webp</image:loc></image:image>
     <image:image><image:loc>https://sunilcharora.in/images/sunil-charora-naujawan-1200.webp</image:loc></image:image>
     <image:image><image:loc>https://sunilcharora.in/images/sunil-charora-gyapan-1200.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://sunilcharora.in/anupshahr-vidhan-sabha-2027/</loc>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://sunilcharora.in/anupshahr-vidhan-sabha-2027/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sunilcharora.in/en/anupshahr-vidhan-sabha-2027/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sunilcharora.in/anupshahr-vidhan-sabha-2027/"/>
+    <lastmod>2026-09-24</lastmod>
+  </url>
+  <url>
+    <loc>https://sunilcharora.in/en/anupshahr-vidhan-sabha-2027/</loc>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://sunilcharora.in/anupshahr-vidhan-sabha-2027/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sunilcharora.in/en/anupshahr-vidhan-sabha-2027/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sunilcharora.in/anupshahr-vidhan-sabha-2027/"/>
+    <lastmod>2026-09-24</lastmod>
   </url>
 </urlset>
