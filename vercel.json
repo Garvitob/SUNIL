@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "installCommand": "",
   "buildCommand": "python3 src/build.py",
   "outputDirectory": "site",
   "cleanUrls": true,
@@ -11,7 +12,7 @@
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Content-Security-Policy", "value": "frame-ancestors 'none'; base-uri 'self'; object-src 'none'" },
+        { "key": "Content-Security-Policy", "value": "frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'none'" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000" }
@@ -25,19 +26,11 @@
     {
       "source": "/:dir(images|fonts)/:file*",
       "missing": [{ "type": "query", "key": "v" }],
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
     },
     {
       "source": "/favicon.ico",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
-    },
-    {
-      "source": "/:file(llms\\.txt|humans\\.txt|robots\\.txt)",
-      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
-    },
-    {
-      "source": "/site.webmanifest",
-      "headers": [{ "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" }]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
     }
   ]
 }

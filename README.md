@@ -27,8 +27,13 @@ Images and fonts get a `?v=<content hash>` so browsers can cache them for a year
 ## Deploy on Vercel
 
 1. Vercel → **Add New… → Project** → import the GitHub repo `Garvitob/SUNIL`.
-2. Leave every setting as it is. `vercel.json` already sets Framework "Other", Build Command `python3 src/build.py` and Output Directory `site`.
+2. Leave every setting as it is.
+   - `vercel.json` already sets Framework "Other", Build Command `python3 src/build.py` and Output Directory `site`.
+   - Leave **Root Directory** empty, the repo root. Setting it to `site` would skip the build.
+   - Keep the default Node.js version.
 3. Click **Deploy**.
+
+Don't add `requirements.txt`, `pyproject.toml`, `Pipfile` or an `api/` folder. Vercel would then treat the project as a Python app instead of a static site.
 
 On every deploy Vercel rebuilds the site. It sets the canonical URL, sitemap and share links to the project's production address:
 
@@ -43,7 +48,12 @@ On 22 Sep 2026 `sunilcharora.in` was still available to register.
 
 1. Buy the domain.
 2. In Vercel, open **Project → Settings → Domains** and add both `sunilcharora.in` and `www.sunilcharora.in`. Set `www` to redirect (308) to the apex domain.
-3. Click **Redeploy** so the canonical URLs, sitemap and preview images switch to the new domain.
+3. Under **Settings → Environment Variables**, add `SITE_URL` = `https://sunilcharora.in` (no trailing slash). Without it, Vercel uses the *shortest* domain on the project, which is wrong if you ever make `www` the main address.
+4. Click **Redeploy** so the canonical URLs, sitemap and preview images switch to the new domain.
+5. Optional: the old `*.vercel.app` address stays reachable, and its canonical links already point to the domain. To send visitors across too, add this to `vercel.json`, using your project's real `.vercel.app` name:
+   ```json
+   "redirects": [{ "source": "/:path*", "has": [{ "type": "host", "value": "<project>.vercel.app" }], "destination": "https://sunilcharora.in/:path*", "permanent": true }]
+   ```
 
 ## After going live
 
@@ -59,6 +69,7 @@ On 22 Sep 2026 `sunilcharora.in` was still available to register.
    1. Enable it in the Vercel dashboard.
    2. Add `<script defer src="/_vercel/insights/script.js"></script>` just before `</body>` in `src/template.html`.
    3. Push. The build sees the same-origin script and allows it in the page's Content-Security-Policy.
+   4. After deploying, run `curl -si -X POST https://<domain>/_vercel/insights/view`. If it returns 308, the trailing-slash setting is blocking analytics. In that case, use the script path the Vercel dashboard shows for your project.
 
 ## Confirm with Sunil ji before launch
 
@@ -74,7 +85,8 @@ On 22 Sep 2026 `sunilcharora.in` was still available to register.
   2. Copy a `<figure class="photo">` block in the template and use `{{IMG:file.webp}}` for the path.
   3. Add the file name to `PHOTOS` in `build.py` to list it in the image sitemap.
 - **Preview images:** if the name, ward or slogan changes, run `python3 src/make_og.py`, then rename the output files, for example `og-image-v2.jpg`, and update the template. WhatsApp and Facebook cache preview images by URL.
-- **Inline code:** do not add `style="…"` attributes or `<script src>` tags. The Content-Security-Policy would block them, and the build stops with a message if it finds them. Use CSS classes instead.
+- **Inline code:** do not add `style="…"` attributes, `onclick`-style attributes or third-party `<script src>` tags. The Content-Security-Policy would block them, and the build stops with a message if it finds them. Use CSS classes and `addEventListener` instead. A same-origin `<script defer src="/…">` is allowed.
+- **Vercel Toolbar:** the page's Content-Security-Policy deliberately blocks the Vercel Toolbar and comments on preview deployments. You can switch the toolbar off under Project → Settings → General.
 
 ## Check locally
 

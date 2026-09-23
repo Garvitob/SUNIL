@@ -17,8 +17,9 @@ The site address used for canonical, hreflang, Open Graph, JSON-LD and the sitem
 is the first of these that is set:
   --site https://www.example.in    command line
   SITE_URL                         environment variable (e.g. in Vercel > Settings > Environment Variables)
-  VERCEL_PROJECT_PRODUCTION_URL    set by Vercel during its build: the custom domain once one is
-                                   added to the project, otherwise the project's *.vercel.app address
+  VERCEL_PROJECT_PRODUCTION_URL    set by Vercel during its build: the SHORTEST custom domain on the
+                                   project (set SITE_URL if www is the main address), otherwise the
+                                   project's *.vercel.app address. Redeploy after adding a domain.
   DEFAULT_SITE_URL                 below, for local builds
 
 Optional environment variables: GOOGLE_SITE_VERIFICATION, BING_SITE_VERIFICATION
@@ -64,11 +65,12 @@ def site_address():
     def clean(url):
         url = url.strip().rstrip("/")
         return url if re.match(r"https?://", url) else "https://" + url
-    if "--site" in sys.argv:
-        i = sys.argv.index("--site")
-        if i + 1 >= len(sys.argv):
-            sys.exit("--site needs a URL, e.g. --site https://www.example.in")
-        return clean(sys.argv[i + 1]), "--site"
+    for i, arg in enumerate(sys.argv):
+        if arg == "--site" or arg.startswith("--site="):
+            value = arg[len("--site="):] if "=" in arg else (sys.argv[i + 1] if i + 1 < len(sys.argv) else "")
+            if not value or value.startswith("--"):
+                sys.exit("--site needs a URL, e.g. --site https://www.example.in")
+            return clean(value), "--site"
     for var in ("SITE_URL", "VERCEL_PROJECT_PRODUCTION_URL"):
         if os.environ.get(var, "").strip():
             return clean(os.environ[var]), var
@@ -149,7 +151,10 @@ def add_csp(s, where):
             same_origin_js = True
             continue
         sys.exit('%s: unexpected script tag %s (use inline <script> or <script defer src="/...">)' % (where, tag))
-    if re.search(r"<[^>]+\s(?:style|on[a-z]+)=", s):
+    for tag in re.findall(r"<style\b[^>]*>", s, re.I):
+        if tag != "<style>":
+            sys.exit("%s: unexpected style tag %s (the CSP only allows plain inline <style> blocks)" % (where, tag))
+    if re.search(r"<[^>]+\s(?:style|on[a-z]+)=", s, re.I):
         sys.exit('%s: style="" and on*="" attributes are blocked by the CSP; use a class / addEventListener' % where)
     scripts = [csp_hash(x) for x in re.findall(r"<script>(.*?)</script>", s, re.S)]
     styles = [csp_hash(x) for x in re.findall(r"<style>(.*?)</style>", s, re.S)]
@@ -159,6 +164,14 @@ def add_csp(s, where):
               "manifest-src 'self'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests") % (
         " ".join(scripts) or "'none'", " ".join(styles) or "'none'")
     return s.replace("{{CSP}}", '<meta http-equiv="Content-Security-Policy" content="%s">' % policy, 1)
+
+
+def check_jsonld(s, where):
+    for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', s, re.S):
+        try:
+            json.loads(block)
+        except ValueError as e:
+            sys.exit("%s: invalid JSON-LD (%s). Check quotes in the ⟮…⟯ head text." % (where, e))
 
 
 def check_markers(s, where):
@@ -223,6 +236,7 @@ def render(tpl, lang, mode, site_url, lastmod):
     s = s.replace("{{FAQ_JSONLD}}", json.dumps(faq, ensure_ascii=False, indent=2).replace("</", "<\\/"))
     s = s.replace("{{DICT}}", json.dumps(D, ensure_ascii=False).replace("</", "<\\/"))
     s = add_csp(s, "%s/%s" % (lang, mode)) if mode == "site" else s.replace("{{CSP}}\n", "")
+    check_jsonld(s, "%s/%s" % (lang, mode))
     check_markers(s, "%s/%s" % (lang, mode))
     return s
 
@@ -244,7 +258,8 @@ def content_date():
     the date carries over while the fingerprint matches, and becomes today's date when it does not."""
     h = hashlib.sha256()
     files = [SRC, SRC_404, pathlib.Path(__file__).resolve()]
-    files += sorted(p for d in ("images", "fonts") for p in (SITE / d).iterdir() if p.is_file())
+    files += sorted(p for d in ("images", "fonts") for p in (SITE / d).iterdir()
+                    if p.is_file() and p.suffix.lower() in (".webp", ".jpg", ".jpeg", ".png", ".ico", ".woff2", ".txt"))
     for p in files:
         data = p.read_bytes()
         if p.suffix in (".html", ".py"):

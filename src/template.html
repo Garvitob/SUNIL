@@ -372,7 +372,7 @@ h3{font-size:1.5rem}
 .dev-credit{font-size:.84rem}
 .dev-credit a{color:#fff;font-weight:700;text-decoration-color:rgba(255,255,255,.45);text-underline-offset:2px}
 .dev-credit a:hover{color:var(--sarson);text-decoration-color:currentColor}
-.dev-name{white-space:nowrap}
+.dev-name,.dev-credit a{white-space:nowrap}
 @media (min-width:800px){.foot-grid{grid-template-columns:1.5fr 1fr 1fr}}
 
 /* Mobile action bar, desktop WhatsApp button */
@@ -399,7 +399,7 @@ h3{font-size:1.5rem}
   .lang-swap main,.lang-swap .site-head,.lang-swap .site-foot{animation:badal .28s ease}
 }
 @keyframes uth{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes ubhar{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes ubhar{from{transform:scale(.94)}to{transform:none}}
 @keyframes khul{from{clip-path:polygon(0 0,0 0,0 50%,0 100%,0 100%,0 50%)}to{clip-path:polygon(0 0,100% 0,calc(100% - 14px) 50%,100% 100%,0 100%,14px 50%)}}
 @keyframes badal{from{opacity:.35}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){
@@ -431,7 +431,7 @@ h3{font-size:1.5rem}
 
 <header class="site-head">
   <div class="wrap head-row">
-    <a class="brand" href="#top" aria-label="⟪सुनील चरौरा, पेज के ऊपर जाएं‖Sunil Charora, back to top⟫">
+    <a class="brand" href="#top">
       <img src="{{IMG:sunil-charora-portrait.webp}}" alt="" width="42" height="42">
       <span>
         <span class="brand-name">⟦सुनील चरौरा‖Sunil Charora⟧</span>
@@ -603,35 +603,35 @@ h3{font-size:1.5rem}
     <ul class="yojana-list">
       <li class="yojana">
         <div class="yojana-text"><h3>⟦पीएम किसान सम्मान निधि‖PM-Kisan Samman Nidhi⟧</h3><p>⟦किस्त रुकी हो, ई-केवाईसी या नाम में सुधार‖Stopped instalment, e-KYC or name correction⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे पीएम किसान सम्मान निधि में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with PM-Kisan Samman Nidhi.}⟫" target="_blank" rel="noopener" aria-label="⟪पीएम किसान सम्मान निधि में मदद के लिए व्हाट्सएप करें‖WhatsApp for help with PM-Kisan⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे पीएम किसान सम्मान निधि में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with PM-Kisan Samman Nidhi.}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: पीएम किसान सम्मान निधि (व्हाट्सएप)‖Get help: PM-Kisan Samman Nidhi (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
       <li class="yojana">
         <div class="yojana-text"><h3>⟦किसान क्रेडिट कार्ड‖Kisan Credit Card⟧</h3><p>⟦खेती के लिए कम ब्याज पर कर्ज‖Low-interest loans for farming⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे किसान क्रेडिट कार्ड बनवाने में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help getting a Kisan Credit Card.}⟫" target="_blank" rel="noopener" aria-label="⟪किसान क्रेडिट कार्ड में मदद के लिए व्हाट्सएप करें‖WhatsApp for help with a Kisan Credit Card⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे किसान क्रेडिट कार्ड बनवाने में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help getting a Kisan Credit Card.}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: किसान क्रेडिट कार्ड (व्हाट्सएप)‖Get help: Kisan Credit Card (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
       <li class="yojana">
         <div class="yojana-text"><h3>⟦फसल बीमा योजना‖Crop insurance (PMFBY)⟧</h3><p>⟦फसल खराब होने पर बीमा का दावा‖Insurance claims when crops are damaged⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे फसल बीमा के दावे में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with a crop insurance claim.}⟫" target="_blank" rel="noopener" aria-label="⟪फसल बीमा में मदद के लिए व्हाट्सएप करें‖WhatsApp for help with crop insurance⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे फसल बीमा के दावे में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with a crop insurance claim.}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: फसल बीमा योजना (व्हाट्सएप)‖Get help: Crop insurance (PMFBY) (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
       <li class="yojana">
         <div class="yojana-text"><h3>⟦आयुष्मान कार्ड‖Ayushman card⟧</h3><p>⟦5 लाख रुपये तक का मुफ्त इलाज‖Free treatment up to ₹5 lakh⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे आयुष्मान कार्ड बनवाने में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help getting an Ayushman card.}⟫" target="_blank" rel="noopener" aria-label="⟪आयुष्मान कार्ड में मदद के लिए व्हाट्सएप करें‖WhatsApp for help with an Ayushman card⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे आयुष्मान कार्ड बनवाने में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help getting an Ayushman card.}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: आयुष्मान कार्ड (व्हाट्सएप)‖Get help: Ayushman card (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
       <li class="yojana">
         <div class="yojana-text"><h3>⟦पेंशन‖Pensions⟧</h3><p>⟦वृद्धावस्था, विधवा और दिव्यांग पेंशन‖Old-age, widow and disability pensions⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे पेंशन (वृद्धावस्था/विधवा/दिव्यांग) में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with a pension (old-age/widow/disability).}⟫" target="_blank" rel="noopener" aria-label="⟪पेंशन में मदद के लिए व्हाट्सएप करें‖WhatsApp for help with pensions⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे पेंशन (वृद्धावस्था/विधवा/दिव्यांग) में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with a pension (old-age/widow/disability).}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: पेंशन (व्हाट्सएप)‖Get help: Pensions (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
       <li class="yojana">
         <div class="yojana-text"><h3>⟦छात्रवृत्ति‖Scholarships⟧</h3><p>⟦प्री-मैट्रिक और पोस्ट-मैट्रिक छात्रवृत्ति‖Pre-matric and post-matric scholarships⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे छात्रवृत्ति के फॉर्म में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with a scholarship form.}⟫" target="_blank" rel="noopener" aria-label="⟪छात्रवृत्ति में मदद के लिए व्हाट्सएप करें‖WhatsApp for help with scholarships⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे छात्रवृत्ति के फॉर्म में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with a scholarship form.}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: छात्रवृत्ति (व्हाट्सएप)‖Get help: Scholarships (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
       <li class="yojana">
         <div class="yojana-text"><h3>⟦कौशल प्रशिक्षण‖Skill training (PMKVY)⟧</h3><p>⟦मुफ्त ट्रेनिंग और सरकारी प्रमाण पत्र‖Free training with a government certificate⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे कौशल प्रशिक्षण (PMKVY) की जानकारी चाहिए।}‖{wa:Namaste Sunil Charora ji, I would like information about skill training (PMKVY).}⟫" target="_blank" rel="noopener" aria-label="⟪कौशल प्रशिक्षण की जानकारी के लिए व्हाट्सएप करें‖WhatsApp for skill-training information⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे कौशल प्रशिक्षण (PMKVY) की जानकारी चाहिए।}‖{wa:Namaste Sunil Charora ji, I would like information about skill training (PMKVY).}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: कौशल प्रशिक्षण (व्हाट्सएप)‖Get help: Skill training (PMKVY) (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
       <li class="yojana">
         <div class="yojana-text"><h3>⟦आवास और उज्ज्वला‖Housing and Ujjwala⟧</h3><p>⟦पक्का घर और रसोई गैस कनेक्शन‖A pucca house and a cooking-gas connection⟧</p></div>
-        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे आवास या उज्ज्वला योजना में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with housing or the Ujjwala scheme.}⟫" target="_blank" rel="noopener" aria-label="⟪आवास या उज्ज्वला योजना में मदद के लिए व्हाट्सएप करें‖WhatsApp for help with housing or Ujjwala⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
+        <a class="btn-sm" href="⟪{wa:नमस्कार सुनील चरौरा जी, मुझे आवास या उज्ज्वला योजना में मदद चाहिए।}‖{wa:Namaste Sunil Charora ji, I need help with housing or the Ujjwala scheme.}⟫" target="_blank" rel="noopener" aria-label="⟪मदद लें: आवास और उज्ज्वला (व्हाट्सएप)‖Get help: Housing and Ujjwala (WhatsApp)⟫"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>⟦मदद लें‖Get help⟧</a>
       </li>
     </ul>
     <p class="note"><strong>⟦ध्यान दें:‖Please note:⟧</strong> ⟦यह एक निजी जनसेवा पहल है, कोई सरकारी पोर्टल नहीं। योजना का लाभ सरकारी नियमों और पात्रता के अनुसार ही मिलता है। हम फॉर्म, कागज और सही जानकारी में आपकी मदद करते हैं।‖This is a private public-service initiative, not a government portal. Scheme benefits depend on government rules and eligibility. We help you with forms, documents and the right information.⟧</p>
@@ -714,7 +714,7 @@ h3{font-size:1.5rem}
       </div>
       <div class="field">
         <label for="f-mobile">⟦मोबाइल नंबर (जरूरी नहीं)‖Mobile number (optional)⟧</label>
-        <input id="f-mobile" name="mobile" type="tel" inputmode="tel" autocomplete="tel-national" maxlength="16" placeholder="⟪10 अंकों का नंबर‖10-digit number⟫">
+        <input id="f-mobile" name="mobile" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="⟪10 अंकों का नंबर‖10-digit number⟫">
       </div>
       <fieldset class="field">
         <legend>⟦विषय‖Subject⟧</legend>
@@ -767,7 +767,7 @@ h3{font-size:1.5rem}
     <p>⟦प्रकाशक: श्री सुनील चरौरा, जहांगीराबाद–अनूपशहर, जिला बुलंदशहर (उ.प्र.)। यह एक निजी वेबसाइट है, किसी सरकारी विभाग की नहीं।‖Published by Shri Sunil Charora, Jahangirabad–Anupshahr, Bulandshahr district (UP). This is a private website, not a government department's.⟧</p>
     <div class="foot-bottom">
       <p>© 2026 ⟦सुनील चरौरा। सर्वाधिकार सुरक्षित।‖Sunil Charora. All rights reserved.⟧</p>
-      <p class="dev-credit">⟦वेबसाइट डिज़ाइन, विकास एवं डिजिटल मार्केटिंग:‖Website design, development &amp; digital marketing by⟧ <a href="⟪{wa-dev:नमस्ते गर्वित जी, मैंने सुनील चरौरा जी की वेबसाइट देखी। मुझे भी वेबसाइट/डिजिटल मार्केटिंग के बारे में बात करनी है।}‖{wa-dev:Hi Garvit, I saw the Sunil Charora website and would like to talk about a website / digital marketing.}⟫" target="_blank" rel="nofollow noopener" lang="en" translate="no" aria-label="⟪First Compile, वेबसाइट डेवलपर (व्हाट्सएप)‖First Compile, website developer (WhatsApp)⟫">First Compile</a> <span class="dev-name">(⟦गर्वित ओबेरॉय‖Garvit Oberoi⟧)</span> · <a class="num" href="tel:+917017304973" rel="nofollow" aria-label="⟪डेवलपर का फोन: +91 70173 04973‖Developer's phone: +91 70173 04973⟫">+91 70173 04973</a></p>
+      <p class="dev-credit">⟦वेबसाइट डिज़ाइन, विकास एवं डिजिटल मार्केटिंग:‖Website design, development &amp; digital marketing by⟧ <a class="dev-link" href="⟪{wa-dev:नमस्ते गर्वित जी, मैंने सुनील चरौरा जी की वेबसाइट देखी। मुझे भी वेबसाइट/डिजिटल मार्केटिंग के बारे में बात करनी है।}‖{wa-dev:Hi Garvit, I saw the Sunil Charora website and would like to talk about a website / digital marketing.}⟫" target="_blank" rel="nofollow noopener" aria-label="⟪First Compile, वेबसाइट डेवलपर (व्हाट्सएप)‖First Compile, website developer (WhatsApp)⟫"><span lang="en" translate="no">First Compile</span></a> <span class="dev-name">(⟦गर्वित ओबेरॉय‖Garvit Oberoi⟧)</span> · <a class="num" href="tel:+917017304973" rel="nofollow" aria-label="⟪+91 70173 04973, डेवलपर का फोन‖+91 70173 04973, developer's phone⟫">+91 70173 04973</a></p>
     </div>
   </div>
 </footer>
@@ -831,7 +831,7 @@ h3{font-size:1.5rem}
     for (i = 0; i < t.length; i++) t[i].setAttribute('aria-current', t[i].getAttribute('data-lang-to') === lang ? 'true' : 'false');
     root.classList.add('lang-swap');
     setTimeout(function () { root.classList.remove('lang-swap'); }, 320);
-    try { history.replaceState(null, '', urls[lang] + location.hash); } catch (e) {}
+    if (location.protocol !== 'file:') { try { history.replaceState(null, '', urls[lang] + location.hash); } catch (e) {} }
     var err = document.querySelector('.form-err'); if (err) err.hidden = true;
   }
   document.addEventListener('click', function (e) {
