@@ -250,7 +250,7 @@ h3{font-size:1.5rem}
 .suchna{display:flex;align-items:stretch;background:var(--hara-gehra);color:#fff;font-size:1rem;overflow:hidden}
 .suchna-lbl{flex:none;margin:0;display:flex;align-items:center;padding:.1rem 1rem 0;background:var(--sarson);color:var(--hara-gehra);font:700 1.15rem/1 var(--f-head)}
 .suchna-view{flex:1;overflow:hidden;cursor:pointer}
-.suchna-btn{flex:none;display:flex;align-items:center;justify-content:center;width:46px;border:0;border-left:1px solid rgba(255,255,255,.18);background:transparent;color:#fff;cursor:pointer;padding:0}
+.suchna-btn{flex:none;display:flex;align-items:center;justify-content:center;width:46px;border:0;border-right:1px solid rgba(255,255,255,.18);background:transparent;color:#fff;cursor:pointer;padding:0}
 .suchna-btn:hover{background:rgba(255,255,255,.1)}
 .suchna-btn .ic{width:18px;height:18px}
 .suchna-btn .i-play,.suchna-btn[aria-pressed="true"] .i-pause{display:none}
@@ -352,6 +352,8 @@ h3{font-size:1.5rem}
 .chip{display:inline-flex;align-items:center;min-height:44px;padding:.35rem .95rem .25rem;border:2px solid var(--field);border-radius:999px;background:#fff;cursor:pointer;font-size:.98rem;line-height:1.3}
 .chips input:checked + .chip{background:var(--hara);border-color:var(--hara);color:#fff}
 .chips input:focus-visible + .chip{outline:3px solid var(--sarson);outline-offset:2px;box-shadow:0 0 0 2px var(--hara-gehra)}
+.field .form-err{margin:.45rem 0 0}
+.wa-form .field [aria-invalid="true"]{border-color:#B42318}
 .form-err{margin:.2rem 0 1rem;padding:.6rem .8rem .5rem;background:#FDECEA;border-left:4px solid #B42318;color:#8A1C12;font-weight:700}
 .wa-form .btn{width:100%}
 .form-note{margin:.9rem 0 0;font-size:.9rem;line-height:1.55;color:var(--ink-2)}
@@ -491,6 +493,7 @@ h3{font-size:1.5rem}
 
 <section class="suchna" aria-label="⟪ताजा सूचना‖Latest notices⟫">
   <p class="suchna-lbl">⟦सूचना‖Notice⟧</p>
+  <button class="suchna-btn" type="button" aria-pressed="false"><svg class="ic i-pause" aria-hidden="true"><use href="#i-pause"/></svg><svg class="ic i-play" aria-hidden="true"><use href="#i-play"/></svg><span class="vh">⟦सूचना रोकें‖Pause notices⟧</span></button>
   <div class="suchna-view">
     <ul class="suchna-track">
       <li>⟦अपनी समस्या सीधे व्हाट्सएप पर भेजें: 97191 66039‖Send your problem directly on WhatsApp: 97191 66039⟧</li>
@@ -503,7 +506,6 @@ h3{font-size:1.5rem}
       <li aria-hidden="true">⟦नौजवान साथी रोजगार और कौशल प्रशिक्षण की जानकारी के लिए जुड़ें‖Young friends: connect with us for jobs and skill-training information⟧</li>
     </ul>
   </div>
-  <button class="suchna-btn" type="button" aria-pressed="false"><svg class="ic i-pause" aria-hidden="true"><use href="#i-pause"/></svg><svg class="ic i-play" aria-hidden="true"><use href="#i-play"/></svg><span class="vh">⟦सूचना रोकें‖Pause notices⟧</span></button>
 </section>
 
 <section id="parichay" class="sec" aria-labelledby="h-parichay">
@@ -865,7 +867,12 @@ h3{font-size:1.5rem}
     else if (mob && !/^[6-9]\d{9}$/.test(d)) { bad = f.mobile; text = L.eMob; }
     else if (!msg) { bad = f.sandesh; text = L.eMsg; }
     [f.naam, f.gaon, f.mobile, f.sandesh].forEach(function (el) { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); });
-    if (bad) { err.textContent = text; err.hidden = false; bad.setAttribute('aria-invalid', 'true'); bad.setAttribute('aria-describedby', 'wa-err'); bad.focus(); return; }
+    if (bad) {
+      bad.closest('.field').appendChild(err);
+      err.textContent = text; err.hidden = false;
+      bad.setAttribute('aria-invalid', 'true'); bad.setAttribute('aria-describedby', 'wa-err'); bad.focus();
+      return;
+    }
     err.hidden = true;
     var lines = [L.greet, '', L.naam + ': ' + naam, L.gaon + ': ' + gaon];
     if (d) lines.push(L.mob + ': ' + d);
